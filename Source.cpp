@@ -3,11 +3,14 @@
 
 
 /// <summary>
-/// Wymagane uzycie C++17 ze wzgledu na uzycie tupli
+/// 
 /// </summary>
 /// <returns></returns>
 int main()
 {
+	std::cout << "=============================================\n";
+	std::cout << "=================Tic Tac Toe=================\n";
+	std::cout << "=============================================\n";
 	int size, points;
 	std::cout << "Podaj wymiary planszy:"; std::cin >> size;
 	std::cout << "Podaj punkty do zdobycia:"; std::cin >> points;

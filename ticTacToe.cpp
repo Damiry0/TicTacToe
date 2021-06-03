@@ -1,6 +1,10 @@
 #include "ticTacToe.h"
 
-
+/// <summary>
+/// Konstruktor parametryczny dla kolka i krzyzyk
+/// </summary>
+/// <param name="size">Wymiary planszy</param> 
+/// <param name="points">Wymagane punkty do zwycienstwa</param> 
 tic_tac_toe::tic_tac_toe(const int size, const int points)
 {
 	size_ = size;
@@ -20,7 +24,9 @@ tic_tac_toe::tic_tac_toe(const int size, const int points)
 	}
 	player_tour_ = true;
 }
-
+/// <summary>
+/// Destruktor kolka i krzyzyk, zwalnia zaalokowana pamiec tablicy
+/// </summary>
 tic_tac_toe::~tic_tac_toe()
 {
 	for (auto i = 0; i < size_; ++i)
@@ -29,7 +35,9 @@ tic_tac_toe::~tic_tac_toe()
 	}
 	delete[] board_;
 }
-
+/// <summary>
+/// Metoda rysujaca tablice 
+/// </summary>
 void tic_tac_toe::draw_board()
 {
 	std::cout << "  ";
@@ -48,7 +56,10 @@ void tic_tac_toe::draw_board()
 		std::cout << '\n';
 	}
 }
-
+/// <summary>
+/// Metoda sprawdzajaca remis
+/// </summary>
+/// <returns></returns>
 bool tic_tac_toe::draw()
 {
 	for(auto i=0;i<size_;i++)
@@ -60,10 +71,12 @@ bool tic_tac_toe::draw()
 	}
 	return true;
 }
-
+/// <summary>
+/// Metoda uruchumiaja gre
+/// </summary>
 void tic_tac_toe::game()
 {
-	while (1)
+	while (true)
 	{
 		if (player_tour_ == true)
 		{
@@ -94,7 +107,7 @@ void tic_tac_toe::game()
 		else
 		{
 			system("CLS");
-			min_max_ai(0, 'O', 3);
+			min_max_ai(0, 'O',3);
 			draw_board();
 			player_tour_ = true;
 			if(check_winner())break;
@@ -103,61 +116,67 @@ void tic_tac_toe::game()
 }
 
 
-int tic_tac_toe::min_max_ai(int poziom, char gracz, int Glebokosc)
+/// <summary>
+/// Algorytm minmax pelniacy funkcje AI 
+/// </summary>
+/// <param name="level"></param>
+/// <param name="player_symbol">Symbol uzywany przez komputer</param>
+/// <param name="depth">Glebokosc przeszukania drzewa binarnego</param>
+/// <returns></returns>
+int tic_tac_toe::min_max_ai(const int level, const char player_symbol, const int depth)
 {
-	int licz = 0, wiersze=0, kolumny=0;
-	for (int i = 0; i < size_; ++i)
+	auto temp = 0, rows=0, columns=0;
+	// minimalizowanie strat
+	for (auto i = 0; i < size_; ++i)
 	{
-		for (int j = 0; j < size_; ++j)
+		for (auto j = 0; j < size_; ++j)
 		{
 			if (board_[i][j] == ' ')
 			{
-				board_[i][j] = gracz;
-				kolumny = j;
-				wiersze = i;
-				licz++;
-				bool test = check_single_winner(gracz);
+				board_[i][j] = player_symbol;
+				columns = j;
+				rows = i;
+				temp++;
 				board_[i][j] = ' ';
-				if (test)
+				if (check_single_winner(player_symbol))
 				{
-					if (!poziom)
-						board_[i][j] = gracz;
-					return gracz == 'X' ? -1 : 1;
+					if (!level)
+						board_[i][j] = player_symbol;
+					return player_symbol == 'X' ? -1 : 1;
 				}
 			}
 		}
 	}
-	//czy jest remis
-	if (licz == 1)
+	//sprawdzanie remisu
+	if (temp == 1)
 	{
-		if (!poziom)
-			board_[wiersze][kolumny] = gracz;
+		if (!level)
+			board_[rows][columns] = player_symbol;
 		return 0;
 	}
-	// wybór najbardziej korzystnego ruchu
-	int V, VMax;
-	VMax = (gracz == 'X' ? size_ - 1 : -size_ + 1);
-	for (int i = 0; i < Glebokosc; ++i)
+	// maksymalizowanie korzysci
+	auto v_max = (player_symbol == 'X' ? size_ - 1 : -size_ + 1);
+	for (auto i = 0; i < depth; ++i)
 	{
-		for (int j = 0; j < Glebokosc; ++j)
+		for (auto j = 0; j < depth; ++j)
 		{
 			if (board_[i][j] == ' ')
 			{
-				board_[i][j] = gracz;
-				V = min_max_ai(poziom + 1, (gracz == 'X' ? 'O' : 'X'), Glebokosc);
+				board_[i][j] = player_symbol;
+				auto V = min_max_ai(level + 1, (player_symbol == 'X' ? 'O' : 'X'), depth);
 				board_[i][j] = ' ';
-				if (((gracz == 'X') && (V < VMax)) || ((gracz == 'O') && V > VMax))
+				if (((player_symbol == 'X') && (V < v_max)) || ((player_symbol == 'O') && V > v_max))
 				{
-					wiersze = i;
-					kolumny = j;
-					VMax = V;
+					rows = i;
+					columns = j;
+					v_max = V;
 				}
 			}
 		}
 	}
-	if (!poziom)
-		board_[wiersze][kolumny] = gracz;
-	return VMax;
+	if (!level)
+		board_[rows][columns] = player_symbol;
+	return v_max;
 
 
 	
@@ -166,7 +185,7 @@ int tic_tac_toe::min_max_ai(int poziom, char gracz, int Glebokosc)
 	if (draw()) return 0;
 	if (depth == 3) return 0;
 
-	int score = player == AI ? INT_MIN : INT_MAX;
+	int score = player == AI ? INT_MIN : INT_MAX;  // doesnt work
 	
 	for (auto i = 0; i < this->size_; i++)
 	{
@@ -178,35 +197,16 @@ int tic_tac_toe::min_max_ai(int poziom, char gracz, int Glebokosc)
 			}
 		}
 	}
-	return mx;*/
-	
-	/*if(maximizingPlayer)
-	{
-		auto best_val = -1000;
-		for(auto i=0;i<2;i++)
-		{
-			auto value = min_max_ai(node, depth + 1, alpha, beta, false);
-			best_val = std::max(best_val, value);
-			alpha = std::max(alpha, best_val);
-
-			if (beta <= alpha) break;
-		}
-		return best_val;
-	}
-	auto best_val = 1000;
-	for (auto i = 0; i < 2; i++)
-	{
-		auto value = min_max_ai(2*node+i, depth + 1, alpha, beta, true);
-		best_val = std::min(best_val, value);
-		beta = std::min(beta, best_val);
-		if (beta <= alpha) break;
-	}
-	return best_val;*/
+	return x;*/
 }
 
 
 
-
+/// <summary>
+/// Sprawdzanie czy zaszedl warunek zwycienstwa
+/// </summary>
+/// <param name="player_symbol"></param>
+/// <returns></returns>
 bool tic_tac_toe::check_single_winner(char player_symbol)
 {
 	auto playerpoints = 0;
@@ -351,11 +351,10 @@ bool tic_tac_toe::check_single_winner(char player_symbol)
 
 	return false;
 	}
-
-
-
-
-
+	/// <summary>
+	/// Wyswietlenie informacji o zwyciescy
+	/// </summary>
+	/// <returns></returns>
 	bool tic_tac_toe::check_winner()
 	{
 		if (check_single_winner('X'))
