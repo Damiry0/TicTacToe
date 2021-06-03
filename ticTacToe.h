@@ -1,0 +1,26 @@
+#pragma once
+#include <iostream>
+
+class tic_tac_toe
+{
+	int size_;
+	char** board_;
+	int points_to_win_;
+	bool player_tour_;
+	bool end_game_;
+	
+	bool check_single_winner(char player_symbol);
+	void check_winner();
+	void draw_board();
+	bool draw();
+	int min_max_ai(int node, int depth, int alpha, int beta, bool maximizingPlayer);
+
+	public:
+	
+	tic_tac_toe() = delete; // just in case to not allow the user to create a board without specificing arguments
+	explicit tic_tac_toe(int size,int points);
+	~tic_tac_toe();
+	
+	void game();
+};
+
