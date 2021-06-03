@@ -347,7 +347,7 @@ bool tic_tac_toe::check_single_winner(char player_symbol)
 			}
 		}
 	}
-	if (draw())return true;
+	
 
 	return false;
 	}
@@ -360,12 +360,12 @@ bool tic_tac_toe::check_single_winner(char player_symbol)
 	{
 		if (check_single_winner('X'))
 		{
-			std::cout << "Gracz wygral";
+			std::cout << "Wygral gracz 'X'";
 			return true;
 		}
 		else if (check_single_winner('O'))
 		{
-			std::cout << "Bot wygral";
+			std::cout << "Wygral gracz 'O'";
 			return true;
 		}
 		return false;
