@@ -19,7 +19,6 @@ tic_tac_toe::tic_tac_toe(const int size, const int points)
 		}
 	}
 	player_tour_ = true;
-	end_game_ = false;
 }
 
 tic_tac_toe::~tic_tac_toe()
@@ -64,10 +63,11 @@ bool tic_tac_toe::draw()
 
 void tic_tac_toe::game()
 {
-	while (end_game_ == false)
+	while (1)
 	{
 		if (player_tour_ == true)
 		{
+			system("CLS");
 			draw_board();
 			std::cout << "\n Gdzie chcesz postawic X ? \n Wybierz rzad:";
 			int row;
@@ -89,48 +89,98 @@ void tic_tac_toe::game()
 			system("CLS");
 			draw_board();
 			player_tour_ = false;
-			check_winner();
+			if (check_winner())break;
 		}
 		else
 		{
 			system("CLS");
-			auto [row, column] = ai();
-			board_[row][column] = 'O';
+			min_max_ai(0, 'O', 3);
 			draw_board();
 			player_tour_ = true;
-			check_winner();
+			if(check_winner())break;
 		}
 	}
 }
 
 
-int tic_tac_toe::min_max_ai(char node,int depth,int alpha,int beta,bool maximizingPlayer)
+int tic_tac_toe::min_max_ai(int poziom, char gracz, int Glebokosc)
 {
+	int licz = 0, wiersze=0, kolumny=0;
+	for (int i = 0; i < size_; ++i)
+	{
+		for (int j = 0; j < size_; ++j)
+		{
+			if (board_[i][j] == ' ')
+			{
+				board_[i][j] = gracz;
+				kolumny = j;
+				wiersze = i;
+				licz++;
+				bool test = check_single_winner(gracz);
+				board_[i][j] = ' ';
+				if (test)
+				{
+					if (!poziom)
+						board_[i][j] = gracz;
+					return gracz == 'X' ? -1 : 1;
+				}
+			}
+		}
+	}
+	//czy jest remis
+	if (licz == 1)
+	{
+		if (!poziom)
+			board_[wiersze][kolumny] = gracz;
+		return 0;
+	}
+	// wybór najbardziej korzystnego ruchu
+	int V, VMax;
+	VMax = (gracz == 'X' ? size_ - 1 : -size_ + 1);
+	for (int i = 0; i < Glebokosc; ++i)
+	{
+		for (int j = 0; j < Glebokosc; ++j)
+		{
+			if (board_[i][j] == ' ')
+			{
+				board_[i][j] = gracz;
+				V = min_max_ai(poziom + 1, (gracz == 'X' ? 'O' : 'X'), Glebokosc);
+				board_[i][j] = ' ';
+				if (((gracz == 'X') && (V < VMax)) || ((gracz == 'O') && V > VMax))
+				{
+					wiersze = i;
+					kolumny = j;
+					VMax = V;
+				}
+			}
+		}
+	}
+	if (!poziom)
+		board_[wiersze][kolumny] = gracz;
+	return VMax;
+
+
 	
-	
-	if (depth == 3) return 0;
-	if (check_single_winner('X')) return 1;
+	/*if (check_single_winner('X')) return 1;
 	if (check_single_winner('O')) return -1;
 	if (draw()) return 0;
+	if (depth == 3) return 0;
 
-	node = (node == 'X') ? 'O' : 'X';
-	int mx = (node == 'X') ? alpha : beta;
+	int score = player == AI ? INT_MIN : INT_MAX;
+	
 	for (auto i = 0; i < this->size_; i++)
 	{
 		for (auto j = 0; j < this->size_; j++)
 		{
 			if(board_[i][j]==' ')
 			{
-				board_[i][j] = node;
-				auto m = min_max_ai(node, depth + 1, alpha, beta, !maximizingPlayer);
-				board_[i][j] = ' ';
-				if ((node == 'O') && (m < mx) || (node == 'X') && (m > mx)) mx = m;
+				tic_tac_toe tmp = *this;
 			}
 		}
 	}
-	return mx;
+	return mx;*/
 	
-	if(maximizingPlayer)
+	/*if(maximizingPlayer)
 	{
 		auto best_val = -1000;
 		for(auto i=0;i<2;i++)
@@ -151,37 +201,10 @@ int tic_tac_toe::min_max_ai(char node,int depth,int alpha,int beta,bool maximizi
 		beta = std::min(beta, best_val);
 		if (beta <= alpha) break;
 	}
-	return best_val;
+	return best_val;*/
 }
 
-std::tuple<int,int> tic_tac_toe::ai()
-{
-	int row=0, column=0;
-	int alpha = 22222;
-	int beta = -22222;
-	int mx = beta;
-	int m = alpha;
-	for (auto i = 0; i < this->size_; i++)
-	{
-		for (auto j = 0; j < this->size_; j++)
-		{
-			if(board_[i][j]==' ')
-			{
-				board_[i][j] = 'O';
-				m = min_max_ai('O',0,alpha,beta,true);
-				board_[i][j] = ' ';
-				if(m>mx)
-				{
-					mx = m;
-					row = i;
-					column = j;
-				}
-				if (m == 1) return { row,column };
-			}
-		}
-	}
-	return { row,column };
-}
+
 
 
 bool tic_tac_toe::check_single_winner(char player_symbol)
@@ -197,7 +220,7 @@ bool tic_tac_toe::check_single_winner(char player_symbol)
 		}
 		if (playerpoints == points_to_win_)
 		{
-			this->end_game_ = true;
+		
 			return true;
 		}
 		playerpoints = 0;
@@ -212,7 +235,7 @@ bool tic_tac_toe::check_single_winner(char player_symbol)
 		}
 		if (playerpoints == points_to_win_)
 		{
-			this->end_game_ = true;
+			
 			return true;
 		}
 		playerpoints = 0;
@@ -226,7 +249,7 @@ bool tic_tac_toe::check_single_winner(char player_symbol)
 			playerpoints++;
 			if (playerpoints == (points_to_win_ - 1))
 			{
-				this->end_game_ = true;
+				
 				return true;
 			}
 
@@ -240,7 +263,7 @@ bool tic_tac_toe::check_single_winner(char player_symbol)
 			playerpoints++;
 			if (playerpoints == points_to_win_ - 1)
 			{
-				this->end_game_ = true;
+				
 				return true;
 			}
 		}
@@ -261,7 +284,7 @@ bool tic_tac_toe::check_single_winner(char player_symbol)
 					playerpoints++;
 					if (playerpoints == points_to_win_ - 1)
 					{
-						this->end_game_ = true;
+					
 						return true;
 					}
 				}
@@ -279,7 +302,7 @@ bool tic_tac_toe::check_single_winner(char player_symbol)
 					playerpoints++;
 					if (playerpoints == points_to_win_ - 1)
 					{
-						this->end_game_ = true;
+					
 						return true;
 					}
 				}
@@ -297,7 +320,7 @@ bool tic_tac_toe::check_single_winner(char player_symbol)
 					playerpoints++;
 					if (playerpoints == points_to_win_ - 1)
 					{
-						this->end_game_ = true;
+				
 						return true;
 					}
 				}
@@ -315,7 +338,7 @@ bool tic_tac_toe::check_single_winner(char player_symbol)
 					playerpoints++;
 					if (playerpoints == points_to_win_ - 1)
 					{
-						this->end_game_ = true;
+				
 						return true;
 					}
 				}
@@ -324,12 +347,26 @@ bool tic_tac_toe::check_single_winner(char player_symbol)
 			}
 		}
 	}
+	if (draw())return true;
 
 	return false;
 	}
 
-	void tic_tac_toe::check_winner()
+
+
+
+
+	bool tic_tac_toe::check_winner()
 	{
-		if (check_single_winner('X')) std::cout << "Gracz wygral";
-		else if (check_single_winner('O')) std::cout << "Bot wygral";
+		if (check_single_winner('X'))
+		{
+			std::cout << "Gracz wygral";
+			return true;
+		}
+		else if (check_single_winner('O'))
+		{
+			std::cout << "Bot wygral";
+			return true;
+		}
+		return false;
 	}
