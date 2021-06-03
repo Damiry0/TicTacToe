@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <tuple> 
 
 class tic_tac_toe
 {
@@ -13,7 +14,8 @@ class tic_tac_toe
 	void check_winner();
 	void draw_board();
 	bool draw();
-	int min_max_ai(int node, int depth, int alpha, int beta, bool maximizingPlayer);
+	int min_max_ai(char node, int depth, int alpha, int beta, bool maximizingPlayer);
+	std::tuple<int, int> ai();
 
 	public:
 	

@@ -1,6 +1,11 @@
 #include <iostream>
 #include "ticTacToe.h"
 
+
+/// <summary>
+/// Wymagane uzycie C++17 ze wzgledu na uzycie tupli
+/// </summary>
+/// <returns></returns>
 int main()
 {
 	int size, points;

@@ -93,24 +93,42 @@ void tic_tac_toe::game()
 		}
 		else
 		{
-			
-		//	system("CLS");
-		//	draw_board();
+			system("CLS");
+			auto [row, column] = ai();
+			board_[row][column] = 'O';
+			draw_board();
 			player_tour_ = true;
-		//	check_winner();
+			check_winner();
 		}
 	}
 }
 
 
-int tic_tac_toe::min_max_ai(int node,int depth,int alpha,int beta,bool maximizingPlayer)
+int tic_tac_toe::min_max_ai(char node,int depth,int alpha,int beta,bool maximizingPlayer)
 {
-
+	
 	
 	if (depth == 3) return 0;
 	if (check_single_winner('X')) return 1;
 	if (check_single_winner('O')) return -1;
 	if (draw()) return 0;
+
+	node = (node == 'X') ? 'O' : 'X';
+	int mx = (node == 'X') ? alpha : beta;
+	for (auto i = 0; i < this->size_; i++)
+	{
+		for (auto j = 0; j < this->size_; j++)
+		{
+			if(board_[i][j]==' ')
+			{
+				board_[i][j] = node;
+				auto m = min_max_ai(node, depth + 1, alpha, beta, !maximizingPlayer);
+				board_[i][j] = ' ';
+				if ((node == 'O') && (m < mx) || (node == 'X') && (m > mx)) mx = m;
+			}
+		}
+	}
+	return mx;
 	
 	if(maximizingPlayer)
 	{
@@ -125,22 +143,44 @@ int tic_tac_toe::min_max_ai(int node,int depth,int alpha,int beta,bool maximizin
 		}
 		return best_val;
 	}
-	else
+	auto best_val = 1000;
+	for (auto i = 0; i < 2; i++)
 	{
-		auto best_val = 1000;
-		for (auto i = 0; i < 2; i++)
-		{
-			auto value = min_max_ai(2*node+i, depth + 1, alpha, beta, true);
-			best_val = std::min(best_val, value);
-			beta = std::min(beta, best_val);
-			if (beta <= alpha) break;
-		}
-		return best_val;
+		auto value = min_max_ai(2*node+i, depth + 1, alpha, beta, true);
+		best_val = std::min(best_val, value);
+		beta = std::min(beta, best_val);
+		if (beta <= alpha) break;
 	}
+	return best_val;
+}
 
-
-	
-	
+std::tuple<int,int> tic_tac_toe::ai()
+{
+	int row=0, column=0;
+	int alpha = 22222;
+	int beta = -22222;
+	int mx = beta;
+	int m = alpha;
+	for (auto i = 0; i < this->size_; i++)
+	{
+		for (auto j = 0; j < this->size_; j++)
+		{
+			if(board_[i][j]==' ')
+			{
+				board_[i][j] = 'O';
+				m = min_max_ai('O',0,alpha,beta,true);
+				board_[i][j] = ' ';
+				if(m>mx)
+				{
+					mx = m;
+					row = i;
+					column = j;
+				}
+				if (m == 1) return { row,column };
+			}
+		}
+	}
+	return { row,column };
 }
 
 
