@@ -11,6 +11,7 @@ class tic_tac_toe
 	
 	bool check_single_winner(char player_symbol);
 	bool check_winner();
+	bool check_full_board();
 	void draw_board();
 	bool draw();
 	int min_max_ai(int level, char player_symbol, int depth);

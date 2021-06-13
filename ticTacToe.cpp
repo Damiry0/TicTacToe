@@ -76,28 +76,21 @@ bool tic_tac_toe::draw()
 /// </summary>
 void tic_tac_toe::game()
 {
-	while (true)
+	while (check_full_board())
 	{
 		if (player_tour_ == true)
 		{
 			system("CLS");
 			draw_board();
-			std::cout << "\n Gdzie chcesz postawic X ? \n Wybierz rzad:";
-			int row;
-			std::cin >> row;
-			while (row >= size_)
+			int column=0,row=0;
+			do
 			{
-				std::cout << " Wprowadz wartosc ponownie:";
+				std::cout << "\n Gdzie chcesz postawic X ? \n Wybierz rzad:";
 				std::cin >> row;
-			}
-			std::cout << " Wybierz kolumne:";
-			int column;
-			std::cin >> column;
-			while (column >= size_)
-			{
-				std::cout << " Wprowadz wartosc ponownie:";
+				std::cout << " Wybierz kolumne:";
 				std::cin >> column;
 			}
+			while (row >= size_ || column >= size_ || board_[row][column] != ' ');
 			board_[row][column] = 'X';
 			system("CLS");
 			draw_board();
@@ -369,3 +362,16 @@ bool tic_tac_toe::check_single_winner(char player_symbol)
 		}
 		return false;
 	}
+
+bool tic_tac_toe::check_full_board()
+{
+	for (auto i = 0; i < this->size_; i++)
+	{
+		for (auto j = 0; j < this->size_; j++)
+		{
+			if (board_[i][j] == ' ') return true;
+		}
+	}
+	std::cout << "Plansza pelna. Koniec gry!";
+	return false;
+}
